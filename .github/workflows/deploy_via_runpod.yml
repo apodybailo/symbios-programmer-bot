@@ -1,0 +1,28 @@
+name: 🚀 Deploy SYMBIOS ProgrammerBot to RunPod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USER }}" --password-stdin
+
+      - name: Build and Push to GHCR
+        run: |
+          docker build -t ghcr.io/${{ secrets.GHCR_USER }}/symbios-programmer-bot:latest .
+          docker push ghcr.io/${{ secrets.GHCR_USER }}/symbios-programmer-bot:latest
+
+      - name: Deploy to RunPod
+        run: |
+          curl -X POST https://api.runpod.io/graphql             -H "Content-Type: application/json"             -H "Authorization: ${{ secrets.GHCR_TOKEN }}"             -d '{
+              "query": "mutation { startPod(input: { imageName: \"ghcr.io/${{ secrets.GHCR_USER }}/symbios-programmer-bot:latest\", env: [{ key: \"BOT_TOKEN\", value: \"${{ secrets.BOT_TOKEN }}\" }, { key: \"OPENAI_API_KEY\", value: \"${{ secrets.OPENAI_API_KEY }}\" }] }) { id } }"
+            }'
