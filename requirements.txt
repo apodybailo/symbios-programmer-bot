@@ -4,4 +4,3 @@ uvicorn[standard]
 fastapi
 python-dotenv
 requests
-aiogram==3.4.1
