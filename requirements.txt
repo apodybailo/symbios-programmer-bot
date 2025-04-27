@@ -1,2 +1,7 @@
 python-telegram-bot==20.3
-openai==1.14.2
+openai>=1.0.0
+uvicorn[standard]
+fastapi
+python-dotenv
+requests
+aiogram==3.4.1
